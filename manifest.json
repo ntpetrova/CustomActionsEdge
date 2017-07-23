@@ -1,0 +1,56 @@
+{
+
+  "manifest_version": 2,
+  "name": "CustomActions",
+  "version": "1.0",
+  "author": "public domain",
+
+  "description": "plugin for CustomActions",
+
+  "icons": {
+      "128": "images/icon128.png",
+      "20": "images/icon20.png",
+      "40": "images/icon40.png"
+  },
+
+  "permissions": [
+    "webRequest", "background", "tabs", "activeTab", "http://*/*", "https://*/*", "storage", "contextMenus", "<all_urls>"
+  ],
+
+ "background": {
+    "scripts": ["background.js"],
+    "persistent": true
+  },
+
+"options_page": "options.html",
+
+        "commands": {
+          "cmd-exec-1": {
+            "suggested_key": {
+              "default": "Ctrl+Q"            
+	     },
+            "description": "Custom Action #1"
+          },
+          "cmd-exec-2": {
+            "suggested_key": {
+              "default": "Ctrl+B"
+            },
+            "description": "Custom Action #2"
+          },
+          "cmd-exec-3": {
+            "suggested_key": {
+              "default": "Ctrl+Y"
+            },
+            "description": "Custom Action #3"
+          }
+},
+
+"browser_action": {
+    "default_popup": "popup.html",
+    "default_title": "CusstomActions",
+    "default_icon": {
+      "20": "images/icon20.png",
+      "40": "images/icon40.png"
+    }
+  }
+}

@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="X-UA-Compatibile" content="IE=edge,chrome=1"/>
+    <title>Custom Actions</title>
+    <style>
+        * { font-family: Arial; }
+
+        div, p { font-size: 13px; } 
+        textarea {
+            width: 100%;
+            height: 12em;
+        }
+
+        .del-action {
+            float: right;
+        }
+
+        .inp-url {
+            width: 90%;
+        }
+
+        .inp-name {
+            width: 50%;
+        }
+
+        div {
+            margin-bottom: 0.4em;
+        }
+
+        .tmpl-main:hover tmpl-edit {
+            display: block;
+        }
+
+        .half {
+            width: 48%;
+            margin-right: 1%;
+            display: inline-block;
+            vertical-align: top;
+        }
+
+        select {
+            outline: none;
+            border: 0;
+            border-bottom: 2px solid #d0d0d0;
+            width: 10em;
+            transition: border 250ms ease-out;
+        }
+
+            select:focus {
+                border-bottom: 2px solid rgba(128, 128, 224, 128);
+            }
+
+        .card {
+            box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.14), 0 1px 5px 0 rgba(0, 0, 0, 0.12), 0 3px 1px -2px rgba(0, 0, 0, 0.2);
+            background-color: white;
+            border-radius: 2px;
+            flex: 1;
+            padding: 0.7em 1em 0.3em 1em;
+            margin-bottom: 2em;
+        }
+
+        h2 {
+            font-family: Roboto, 'Segoe UI', Tahoma, sans-serif;
+            color: white;
+            background-color: rgb(51, 103, 214);
+            margin: 0;
+            padding: 0.4em 2em;
+        }
+
+        body {
+            margin: 0;
+            background-color: #f0f0f0;
+        }
+
+        .status {
+            background-color: #d0f0d0;
+            padding: 0.4em 1em 0.4em 3em;
+        }
+
+        button {
+            margin-right: 1em;
+        }
+
+        input:focus:required:invalid {
+            background-color: #ffe0e0;
+        }
+
+        input {
+            transition: background-color 400ms ease;
+        }
+
+        input:required:valid {
+            background-color: white;
+            color: black;
+        }
+
+        div.card-view:hover #btnEdit {
+            display: block;
+        }
+
+        div.card-view #btnEdit {
+            display: none;
+        }
+
+        .source-view:hover .source {
+            max-height: 16em;
+            overflow: auto;
+        }
+
+        .source-view .source {
+            max-height: 5.2em;
+            overflow: hidden;
+        }
+    </style>
+</head>
+
+<body ng-app="customActions">
+<div ng-controller="options">
+
+
+    <div style="position: fixed; top: 0; width: 100%; background: #f0f0f0; z-index: 100; ">
+        <h2>Custom Actions</h2>
+        <br />
+
+        <div style="position: absolute; right: 1em;">
+            <button ng-click="save()">Save</button>
+            <button ng-click="add()">Add new</button>
+            <button ng-click="demo()">Demo Config</button>
+        </div>
+
+        <p style="margin-left: 2em;">Enter default JS and/or action JS</p>
+
+        <div ng-bind="vm.status" ng-if="vm.status" class="status"></div>
+    </div>
+
+    <div style="margin: 8em 2em 0 2em; font-size: 13px;">
+
+        <div style="position: relative; margin: 0;">
+            <div ng-repeat="item in vm.items" class="cn-tmpl">
+
+                <div class="card">                         
+                    <div class="card-view" ng-if="!item.editMode" ng-dblclick="edit(item)">
+                        <button id="btnEdit" style="position: absolute; right: 1em;" ng-click="edit(item)">Edit</button>
+                        <div>
+                            Name: <span ng-bind="item.name" class="inp-name"></span>
+                        </div>
+                        <div>
+                            URL: <span ng-bind="item.url"></span>
+                        </div>
+                        <div>
+                            Execute: <span ng-bind="item.execute"></span>
+                        </div>
+                        <div>
+                            Output: <span ng-bind="item.output"></span>
+                        </div>
+                        
+                        <div class="source-view">
+                            <div class="half">
+                                <div>
+                                    Source: <span ng-bind="item.sourceType"></span>
+                                </div>
+                                <pre class="source" ng-bind="item.source"></pre>
+                            </div>
+
+                            <div class="half">
+                                <div>
+                                    Data: <span ng-bind="item.dataType"></span>
+                                </div>
+                                <pre class="source" ng-bind="item.data"></pre>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card-edit" ng-if="item.editMode">
+                        <button style="position: absolute; right: 1em;" ng-click="delete(item)">Delete</button>
+                        <div>
+                            Name: <input type="text" ng-model="item.name" class="inp-name" required />
+                        </div>
+                        <div>
+                            URL: &nbsp;&nbsp;<input type="text" class="inp-url" ng-model="item.url" required />
+                        </div>
+                        <div>
+                            Execute: &nbsp;&nbsp;<select ng-options="o as o for o in vm.executeOptions" ng-model="item.execute"></select>
+                        </div>
+                        <div>
+                            Output: &nbsp;&nbsp;&nbsp;<select ng-options="o as o for o in vm.outputOptions" ng-model="item.output"></select>
+                        </div>
+
+                        <div class="half">
+                            <div>
+                                Source: &nbsp;&nbsp;&nbsp;<select ng-options="o.sourceType as o.name for o in vm.templates" ng-model="item.sourceType"></select>
+                            </div>
+                            <div ng-if="item.sourceType == 'JS'">
+                                <textarea ng-model="item.source"></textarea>
+                            </div>
+                            <div ng-if="item.sourceType != 'JS'">
+                                <div ng-click="toggleSource(item, $event)" style="cursor: pointer;">[show source code]</div>
+                                <pre ng-bind="getTemplateSource(item)" style="display: none;"></pre>
+                            </div>
+                        </div>
+
+                        <div class="half">
+                            <div>
+                                Data: <select ng-options="o as o for o in vm.dataTypes" ng-model="item.dataType"></select>
+                            </div>
+                            <div ng-if="dataType != 'None'">
+                                <textarea ng-model="item.data"></textarea>
+                            </div>
+                        </div>
+
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+    <script src="angular.min.js"></script>
+    <script src="options.js"></script>
+</body>
+</html>
